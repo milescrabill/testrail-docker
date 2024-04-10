@@ -27,20 +27,17 @@ RUN apt-get update                                  \
       && apt-get clean                              \
       && rm -rf /var/lib/apt/lists/*
 
+# # The built-in docker-php-ext-install tool doesn't install the imagick extension,
+# # and we have to resort to a different tool.
 ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 
 RUN install-php-extensions gd                   \
+      && install-php-extensions imagick         \
       && install-php-extensions ioncube_loader  \
       && install-php-extensions ldap            \
       && install-php-extensions mysqli          \
       && install-php-extensions pdo_mysql       \
       && install-php-extensions zip
-
-# # The built-in docker-php-ext-install tool doesn't install the imagick extension,
-# # and we have to resort to a different tool.
-# RUN wget -O /var/tmp/install-php-extensions https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions \
-#       && chmod +x /var/tmp/install-php-extensions \
-#       && /var/tmp/install-php-extensions imagick
 
 RUN mkdir -p /var/www/testrail                 \
       &&  mkdir -p /opt/testrail/attachments   \
