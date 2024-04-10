@@ -1,10 +1,6 @@
-FROM php:7.4-fpm
+FROM php:8.1-fpm
 # Change this as needed to match container
-ARG ARG_PHP_VERSION=7.4
-# Change this to update
-# See https://www.ioncube.com/loaders.php for ioncube downloadable versions
-# and release notes.
-ARG ARG_IONCUBE_VERSION=10.4.5
+ARG ARG_PHP_VERSION=8.1
 ENV TR_DEFAULT_TASK_EXECUTION=60
 ENV TR_CONFIGPATH="/var/www/testrail/config/"
 ENV TR_DEFAULT_LOG_DIR="/opt/testrail/logs/"
@@ -31,14 +27,20 @@ RUN apt-get update                                  \
       && apt-get clean                              \
       && rm -rf /var/lib/apt/lists/*
 
-RUN docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu \
-      && docker-php-ext-configure gd --with-jpeg --with-freetype
+ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 
-RUN docker-php-ext-install gd              \
-      && docker-php-ext-install ldap       \
-      && docker-php-ext-install mysqli     \
-      && docker-php-ext-install pdo_mysql  \
+RUN install-php-extensions gd                   \
+      && docker-php-ext-install ioncube_loader  \
+      && docker-php-ext-install ldap            \
+      && docker-php-ext-install mysqli          \
+      && docker-php-ext-install pdo_mysql       \
       && docker-php-ext-install zip
+
+# # The built-in docker-php-ext-install tool doesn't install the imagick extension,
+# # and we have to resort to a different tool.
+# RUN wget -O /var/tmp/install-php-extensions https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions \
+#       && chmod +x /var/tmp/install-php-extensions \
+#       && /var/tmp/install-php-extensions imagick
 
 RUN mkdir -p /var/www/testrail                 \
       &&  mkdir -p /opt/testrail/attachments   \
@@ -48,21 +50,18 @@ RUN mkdir -p /var/www/testrail                 \
 
 COPY php.ini /usr/local/etc/php/conf.d/php.ini
 
-RUN wget -O /tmp/ioncube.tar.gz                                                                         \
-      https://testrail-mirror.s3.amazonaws.com/ioncube_loaders_lin_x86-64_${ARG_IONCUBE_VERSION}.tar.gz \
-      && tar -xzf /tmp/ioncube.tar.gz -C /tmp                                                           \
-      && mv /tmp/ioncube /opt/ioncube                                                                   \
-      && rm -f /tmp/ioncube.tar.gz                                                                      \
-      && echo zend_extension=/opt/ioncube/ioncube_loader_lin_${ARG_PHP_VERSION}.so >> /usr/local/etc/php/conf.d/ioncube-php.ini
-
 RUN wget -O /tmp/multiarch-support.deb                                                      \
       https://testrail-mirror.s3.amazonaws.com/multiarch-support_2.27-3ubuntu1.6_amd64.deb  \
       && dpkg -i /tmp/multiarch-support.deb                                                 \
       && rm -fv /tmp/multiarch-support.deb
 
-RUN wget -O /tmp/cassandra-cpp-driver.deb                                               \
-      https://testrail-mirror.s3.amazonaws.com/cassandra-cpp-driver_2.16.0-1_amd64.deb  \
-      && dpkg -i /tmp/cassandra-cpp-driver.deb                                          \
+RUN wget -O /tmp/libssl1.1.deb                                                                 \
+      http://ftp.us.debian.org/debian/pool/main/o/openssl/libssl1.1_1.1.1w-0+deb11u1_amd64.deb \
+      && dpkg -i /tmp/libssl1.1.deb                                                            \
+      && rm -fv /tmp/libssl1.1.deb                                                             \
+      && wget -O /tmp/cassandra-cpp-driver.deb                                                 \
+           https://testrail-mirror.s3.amazonaws.com/cassandra-cpp-driver_2.16.0-1_amd64.deb    \
+      && dpkg -i /tmp/cassandra-cpp-driver.deb                                                 \
       && rm -fv /tmp/cassandra-cpp-driver.deb
 
 RUN wget -O /tmp/cassandra.so                                                       \
