@@ -20,6 +20,7 @@ RUN apt-get update                                  \
         libuv1                                      \
         libzip-dev                                  \
         mariadb-client                              \
+        telnet                                      \
         unzip                                       \
         vim                                         \
         wget                                        \
