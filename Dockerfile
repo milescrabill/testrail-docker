@@ -1,4 +1,4 @@
-FROM php:8.1-fpm
+FROM php:8.1-fpm-bullseye
 # Change this as needed to match container
 ARG ARG_PHP_VERSION=8.1
 ENV TR_DEFAULT_TASK_EXECUTION=60
@@ -35,7 +35,6 @@ ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/relea
 RUN install-php-extensions gd                   \
       && install-php-extensions imagick         \
       && install-php-extensions ioncube_loader  \
-      && install-php-extensions ldap            \
       && install-php-extensions mysqli          \
       && install-php-extensions pdo_mysql       \
       && install-php-extensions zip
@@ -53,13 +52,9 @@ RUN wget -O /tmp/multiarch-support.deb                                          
       && dpkg -i /tmp/multiarch-support.deb                                                 \
       && rm -fv /tmp/multiarch-support.deb
 
-RUN wget -O /tmp/libssl1.1.deb                                                                 \
-      http://ftp.us.debian.org/debian/pool/main/o/openssl/libssl1.1_1.1.1w-0+deb11u1_amd64.deb \
-      && dpkg -i /tmp/libssl1.1.deb                                                            \
-      && rm -fv /tmp/libssl1.1.deb                                                             \
-      && wget -O /tmp/cassandra-cpp-driver.deb                                                 \
-           https://testrail-mirror.s3.amazonaws.com/cassandra-cpp-driver_2.16.0-1_amd64.deb    \
-      && dpkg -i /tmp/cassandra-cpp-driver.deb                                                 \
+RUN wget -O /tmp/cassandra-cpp-driver.deb                                                 \
+      https://testrail-mirror.s3.amazonaws.com/cassandra-cpp-driver_2.16.0-1_amd64.deb    \
+      && dpkg -i /tmp/cassandra-cpp-driver.deb                                            \
       && rm -fv /tmp/cassandra-cpp-driver.deb
 
 RUN wget -O /tmp/cassandra.so                                                       \
