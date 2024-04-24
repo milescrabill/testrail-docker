@@ -1,7 +1,7 @@
 FROM php:8.1-fpm-bullseye
 # Change this as needed to match container
 ARG ARG_PHP_VERSION=8.1
-ENV TR_DEFAULT_TASK_EXECUTION=60
+ENV TR_DEFAULT_TASK_EXECUTION=90
 ENV TR_CONFIGPATH="/var/www/testrail/config/"
 ENV TR_DEFAULT_LOG_DIR="/opt/testrail/logs/"
 ENV TR_DEFAULT_AUDIT_DIR="/opt/testrail/audit/"
