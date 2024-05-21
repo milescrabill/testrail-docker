@@ -22,7 +22,7 @@ jobs:
             ls
             pwd
             docker info
-            docker build -t app:build .
+            docker build --progress plain -t app:build .
       - run:
           name: Test
           command: |
